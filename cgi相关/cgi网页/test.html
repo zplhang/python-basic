@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<script>
+			{
+				var messages = ['1', '2', '3'];
+
+				for (var i = 0; i < messages.length; i ++) {
+					//setTimeout(function(){
+						console.log(messages[i]);
+					//}, i * 1500);
+				}
+			} // block1
+			alert(`这是一个
+			多行
+			字符串`);
+			alert(`多行
+			字符串
+			测试`);
+			var name = '小明';
+						var age = 20;
+						var message = `你好, ${name}, 你今年${age}岁了!`;
+						alert(message);
+						var s = 'Hello';
+						alert(s.toUpperCase()); // 返回'HELLO'
+						alert(s.toLowerCase());
+						
+						var ss = 'hello, world';
+						alert(ss.indexOf('world'));// 返回7
+						alert(ss.indexOf('World'));// 没有找到指定的子串，返回-1
+						alert(ss.substring(0, 5));// 从索引0开始到5（不包括5），返回'hello'
+						alert(ss.substring(7));// 从索引7开始到结束，返回'world'
+			alert('Hello World!');
+		</script>
+	</head>
+	<body>
+	  这是一个测试网页。
+	</body>
+</html>
