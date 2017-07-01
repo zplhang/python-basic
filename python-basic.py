@@ -1181,3 +1181,84 @@ print '</html>'
 		# InternalError 数据库内部错误，例如游标失效，事务同步失败等，必须是DatabaseError的子类
 		# ProgrammingError 程序错误，例如数据表没找到或已存在，sql语法错误，参数数量错误等，必须是DatabaseError的子类
 		# NotSupportedError 不支持错误， 使用了数据库不支持的函数或API，例如连接对象上使用rollback函数而数据库并不支持事务或者事务已被关闭，必须是DatabaseError的子类
+		
+# python网络编程
+	# socket(family, type, protocol)
+		# family 套接字家族，可以是AF_UNIX或者AF_INET
+		# type 套接字类型，可以是面向连接(SOCK_STREAM)还是非连接(SOCK_DGRAM)
+		# protocol 一般默认为0
+	# Socket对象的方法
+		# 服务器端
+			# bind() 绑定地址到套接字。在AF_INET下，以元组(host, port)形式表示
+			# listen() TCP监听，指定最大连接数量，至少为1，大部分应用程序设为5
+			# accept() 被动接受TCP客户端连接（阻塞模式）
+		# 客户端
+			# connect() 主动初始化TCP服务器连接，地址以元组(hostname, port)给出，连接出错返回socket.error
+			# connect_ex() connect()的扩展版本
+		# 公共用
+			# recv() 接受TCP数据，数据以字符串形式返回，bufsize指定要接收的最大数据量，flag提供其他消息。
+			# send() 发送TCP数据，将string中的数据发送到连接的套接字，返回要发送的字节数量。
+			# sendall() 完整发送TCP数据。成功返回None，失败抛出异常。
+			# recvfrom() 接收UDP数据，返回值是(data, address)，data是接收到的数据，address是发送数据的套接字地址。
+			# sendto() 发送UDP数据到套接字，address形式为元组(ipaddr, port),指定远程地址，返回值是发送的字节数。
+			# close() 关闭套接字
+			# ......
+	# 简单实例
+		# 服务端
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入socket模块
+		import socket
+
+		# 创建socket对象
+		s = socket.socket()
+
+		#获取本地主机名
+		host = socket.gethostname()
+
+		# 设置端口
+		port = 12345
+
+		# 绑定端口
+		s.bind((host, port))
+
+		# 监听并等待客户端连接
+		s.listen(5)
+		while True:
+			# 建立客户端连接
+			c, addr = s.accept()
+			print '连接地址：', addr
+			c.send('欢迎访问python教程。')
+			# 关闭连接
+			c.close()
+			
+		# 客户端
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入socket模块
+		import socket
+
+		# 创建socket对象
+		s = socket.socket()
+
+		#获取本地主机名
+		host = socket.gethostname()
+
+		# 设置端口
+		port = 12345
+
+		s.connect((host, port))
+		print s.recv(1024)
+		s.close()
+		
+	# python Internet模块
+		# HTTP 网页访问，端口80，python模块：httplib, urllib, xmlrpclib
+		# NNTP 阅读和张贴新闻文章，端口119，nntplib
+		# FTP 文件传输，端口20，ftplib, urllib
+		# SMTP 发送邮件，端口25，smtplib
+		# POP3 接收邮件，端口110，poplib
+		# IMAP4 获取邮件，端口143，imaplib
+		# Telnet 命令行，端口23，telnetlib
+		# Gopher 信息查找， 端口70，gopherlib, urllib
