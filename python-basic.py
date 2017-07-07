@@ -1262,3 +1262,811 @@ print '</html>'
 		# IMAP4 获取邮件，端口143，imaplib
 		# Telnet 命令行，端口23，telnetlib
 		# Gopher 信息查找， 端口70，gopherlib, urllib
+		
+# python SMTP发送邮件
+	# SMTP simple mail transfer protocol，简单邮件传输协议，它是一组用于由源地址到目的地址传送邮件的规则，控制信件的中转方式。
+	# python的smtplib提供了很方便的途径发送电子邮件，对smtp协议进行了简单封装
+	# smtplib.SMTP(host, port, local_hostname)
+		# host SMTP服务器主机，可以指定主机的ip地址或者域名
+		# port 如果指定了host，需要指定SMTP服务使用的端口号，一般情况下SMTP端口号为25.
+		# local_hostname 如果SMTP在本机，只需指定为localhost即可。
+	# smtplib.sendmail(from_addr, to_addr, msg)
+		# from_addr 邮件发送者的地址
+		# to_addr 字符串列表，邮件发送地址
+		# msg 发送消息（字符串，表示邮件，一般由标题、发信人，收信人，邮件内容，附件等构成，要注意msg的格式）
+	# 安装了支持SMTP的服务，如sendmail
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入smtp模块
+		import smtplib
+		from email.mime.text import MIMEText
+		from email.header import Header
+
+		# 邮件发送方
+		sender = 'zplhang@163.com'
+
+		# 接收邮件的地址
+		receivers = ['zplhang@126.com']
+
+		# 消息格式
+			# 第一个是文本内容
+			# 第二个plain设置文本格式
+			# 第三个utf-8设置编码
+		message = MIMEText('Python邮件发送测试...', 'plain', 'utf-8')
+		message['From'] = Header('python教程', 'utf-8')
+		message['To'] = Header('测试', 'utf-8')
+
+		subject = 'Python SMTP邮件测试'
+		message['Subject'] = Header(subject, 'utf-8')
+
+		try:
+			smtpObj = smtplib.SMTP('localhost')
+			smtpObj.sendmail(sender, receivers, message.as_string())
+			print '邮件发送成功'
+		except smtplib.SMTPException:
+			print 'Error: 无法发送邮件'
+		# 此程序未成功
+	
+	# 没有安装SMTP服务，可以使用其他邮件服务商的SMTP访问（QQ，网易，Google等）
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入smtp模块
+		import smtplib
+		from email.mime.text import MIMEText
+		from email.header import Header
+
+		# 邮件发送方
+		sender = 'zplhang@163.com'
+
+		# 接收邮件的地址
+		receivers = ['zplhang@126.com']
+
+		# 消息格式
+			# 第一个是文本内容
+			# 第二个plain设置文本格式
+			# 第三个utf-8设置编码
+		message = MIMEText('Python邮件发送测试...', 'plain', 'utf-8')
+		message['From'] = Header('python教程', 'utf-8')
+		message['To'] = Header('测试', 'utf-8')
+
+		subject = 'Python SMTP邮件测试'
+		message['Subject'] = Header(subject, 'utf-8')
+
+		try:
+			# smtpObj = smtplib.SMTP('localhost') # 出错，没有安装sendmail
+			smtpObj = smtplib.SMTP('smtp.163.com', 25, 'localhost')
+			smtpObj.connect('smtp.163.com', 25)
+			smtpObj.login('xxx@163.com', 'xxx')
+			smtpObj.sendmail(sender, receivers, message.as_string())
+			print '邮件发送成功'
+		except smtplib.SMTPException:
+			print 'Error: 无法发送邮件'
+		# 此程序未成功
+	# 发送HTML格式的邮件
+		mail_msg = """
+		<p>Python 邮件发送测试...</p>
+		<p><a href="http://www.runoob.com">这是一个链接</a></p>
+		"""
+		message = MIMEText(mail_msg, 'html', 'utf-8')
+		
+	# 发送带附件的邮件
+		# 创建一个带附件的实例
+		message = MIMEMultipart()
+		
+		message['From'] = Header('python教程', 'utf-8')
+		message['To'] = Header('测试', 'utf-8')
+		subject = 'python SMTP邮件测试'
+		message['Subject'] = Header(subject, 'utf-8')
+
+		# 邮件正文内容
+		message.attach(MIMEText('这是python教程邮件发送测试。。。', 'plain', 'utf-8'))
+
+		# 构造附件1，传送当前目录下的test.txt文件
+		att1 = MIMEText(open('test.txt', 'rb').read(), 'base64', 'utf-8')
+		att1['Content-Type'] = 'application/octet-stream'
+		# 这里的filename可以任意写，写什么名字，邮件中就显示什么名字
+		att1['Content-Disposition'] = 'attachment; filename = "test.txt"'
+		message.attach(att1)
+
+		# 构造附件2，传送当前目录下的runoob.txt文件
+		att2 = MIMEText(open('runoob.txt', 'rb').read(), 'base64', 'utf-8')
+		att2['Content-Type'] = 'application/octet-stream'
+		att2['Content-Disposition'] = 'attachment; filename = "runoob.txt"'
+		message.attach(att2)
+		
+	# 在HTML文本中添加图片
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入smtp模块
+		import smtplib
+		from email.mime.image import MIMEImage
+		from email.mime.text import MIMEText
+		from email.mime.multipart import MIMEMultipart
+		from email.header import Header
+
+		# 邮件发送方
+		sender = 'zplhang@163.com'
+
+		# 接收邮件的地址
+		receivers = ['zplhang@126.com']
+
+		msgRoot = MIMEMultipart('related')
+		msgRoot['From'] = Header('python教程', 'utf-8')
+		msgRoot['To'] = Header('测试', 'utf-8')
+		subject = 'python SMTP邮件测试'
+		msgRoot['Subject'] = Header(subject, 'utf-8')
+
+		msgAlternative = MIMEMultipart('alternative')
+		msgRoot.attach(msgAlternative)
+
+		mail_msg = """
+		<p>python 邮件发送测试。。。</p>
+		<p><a href = "http://www.python.com">python教程链接</a></p>
+		<p>图片演示：</p>
+		<p><img src = "cid:image1"></p>
+		"""
+		msgAlternative.attach(MIMEText(mail_msg, 'html', 'utf-8'))
+
+		# 指定图片为当前目录
+		fp = open('test.png', 'rb')
+		msgImage = MIMEImage(fp.read())
+		fp.close()
+
+		# 定义图片ID，在HTML文本中引用
+		msgImage.add_header('Content-ID', '<image1>')
+		msgRoot.attach(msgImage)
+
+		try:
+			# smtpObj = smtplib.SMTP('localhost') # 出错，没有安装sendmail
+			smtpObj = smtplib.SMTP()
+			smtpObj.connect('smtp.163.com', 25)
+			smtpObj.login('xxx@163.com', 'xxx')
+			smtpObj.sendmail(sender, receivers, message.as_string())
+			print '邮件发送成功'
+		except smtplib.SMTPException:
+			print 'Error: 无法发送邮件'
+			
+	# 注意：使用第三方SMTP服务发送，需要对邮箱进行设置。生成授权码。
+	
+# python多线程
+	# 多线程类似同时执行多个不同程序
+	# 每个线程都有他自己的一组CPU寄存器，称为线程的上下文，该上下文反映了上次运行该线程时CPU寄存器的状态。
+	# 指令指针和堆栈指针寄存器是线程上下文中两个最重要的寄存器。
+	# 两种方式
+		# 1，函数式：调用thread模块中的start_new_thread()函数来产生新线程
+		# thread.start_new_thread(function, args, kwargs)
+			# function 线程函数
+			# args 传递给线程函数的参数，必须是tuple类型
+			# kwargs 可选参数
+		
+		#!python
+		# -*-coding:utf-8 -*-
+
+		import thread
+		import time
+
+		# 为线程定义一个函数
+		def print_time(threadName, delay):
+			count = 0
+			while count < 5:
+				time.sleep(delay)
+				count += 1
+				print '%s: %s' %(threadName, time.ctime(time.time()))
+
+		# 创建两个线程
+		try:
+			thread.start_new_thread(print_time, ('Thread-1', 2, ))
+			thread.start_new_thread(print_time, ('Thread-2', 4, ))
+		except:
+			print 'Error: unable to start thread'
+
+		while 1:
+			pass
+		
+		# 线程结束一般依靠线程函数的自然结束，也可以在线程函数中调用thread.exit(),它抛出SystemExitException,达到退出线程的目的。
+		# 两个标准库thread和threading支持线程。
+		# thread模块的方法
+			# threading.currentThread() 返回当前的线程变量
+			# threading.enumerate() 返回一个包含正在运行的线程list（正在运行指线程启动后，结束前，不包括启动前和终止后的线程）
+			# threading.activeCount() 返回正在运行的线程数量。与len(threading.enumerate())结果相同。
+		# thread模块提供了Thread类处理线程
+			# run() 线程运行的方法
+			# start() 启动线程活动
+			# join(time) 等待至线程中止
+			# isAlive() 返回线程是否活动的状态
+			# getName() 返回线程名
+			# setName() 设置线程名
+			
+		# 2, 使用threading模块创建线程，直接从threading.Thread继承，然后重写__init__和run()方法
+		#!python
+		# -*-coding:utf-8 -*-
+
+		import threading
+		import time
+
+		exitFlag = 0
+
+		class myThread(threading.Thread):
+			def __init__(self, threadId, name, counter):
+				threading.Thread.__init__(self)
+				self.threadId = threadId
+				self.name = name
+				self.counter = counter
+				
+			# 把要执行的代码写在run()函数里，线程创建后会直接运行run()函数
+			def run(self):
+				print 'Starting ' + self.name
+				print_time(self.name, self.counter, 5)
+				print 'Exiting ' + self.name
+				
+		def print_time(threadName, delay, counter):
+			while counter:
+				if exitFlag:
+					threading.Thread.exit()
+				time.sleep(delay)
+				print '%s: %s' %(threadName, time.ctime(time.time()))
+				counter -= 1
+				
+		# 创建线程
+		thread1 = myThread(1, 'Thread-1', 1)
+		thread2 = myThread(2, 'Thread-2', 2)
+
+		# 开启线程
+		thread1.start()
+		thread2.start()
+
+		print 'Exiting Main Thread'
+	# 线程同步
+		# 当多个线程共同对某个数据进行修改时，可能出现不可预料的结果，为保证数据正确性，需要对多个线程进行同步。
+		# Thread对象的Lock和Rlock可以实现简单的线程同步。对于每次只允许一个线程操作的数据，将对其的操作放到acquire()方法和release()方法之间。
+		# 多线程的优势在于可以同时运行多个任务，但是当线程需要共享数据时，可能存在数据不同步的问题。
+		
+		#!python
+		# -*-coding:utf-8 -*-
+
+		import threading
+		import time
+
+		class myThread(threading.Thread):
+			def __init__(self, threadId, name, counter):
+				threading.Thread.__init__(self)
+				self.threadId = threadId
+				self.name = name
+				self.counter = counter
+				
+			# 把要执行的代码写在run()函数里，线程创建后会直接运行run()函数
+			def run(self):
+				print 'Starting ' + self.name
+				# 获得锁，成功后返回True，可选的timeout参数不填时将一直阻塞直到获得锁，否则超时后返回False
+				threadLock.acquire()
+				print_time(self.name, self.counter, 3)
+				# 释放锁
+				threadLock.release()
+				
+		def print_time(threadName, delay, counter):
+			while counter:
+				time.sleep(delay)
+				print '%s: %s' %(threadName, time.ctime(time.time()))
+				counter -= 1
+				
+		threadLock = threading.Lock()
+		threads = []
+				
+		# 创建线程
+		thread1 = myThread(1, 'Thread-1', 1)
+		thread2 = myThread(2, 'Thread-2', 2)
+
+		# 开启线程
+		thread1.start()
+		thread2.start()
+
+		# 添加线程到线程列表
+		threads.append(thread1)
+		threads.append(thread2)
+
+		# 等待所有线程完成
+		for t in threads:
+			t.join()
+
+		print 'Exiting Main Thread'
+		
+	# 线程优先级队列Queue
+		# python的Queue模块提供了同步的，线程安全的队列类。
+		# 包括FIFO(先入先出)队列Queue，LIFO(后入先出)队列LifoQueue，和优先级队列PriorityQueue。
+		# 它们都实现了锁原语，能够在多线程中直接使用，可以使用队列来实现线程间的同步。
+		# Queue模块常用方法
+			# Queue.qsize() 返回队列大小
+			# Queue.empty() 如果队列为空，返回True，反之False。
+			# Queue.full() 如果队列满，返回True，反之False。
+			# Queue.get(block, timeout) 获取队列，timeout为等待时间
+			# Queue.get_nowait() 相当于Queue.get(False)
+			# Queue.put(item) 写入队列
+			# Queue.put_nowait(item) 相当于Queue.put(item, False)
+			# Queue.task_done() 在完成一项工作之后，Queue.task_done()向任务已经完成的队列发送一个信号
+			# Queue.join() 等到队列为空，再执行别的操作。
+			
+			#!python
+			# -*-coding:utf-8 -*-
+
+			import threading
+			import time
+			import Queue
+
+			exitFlag = 0
+
+			class myThread(threading.Thread):
+				def __init__(self, threadId, name, q):
+					threading.Thread.__init__(self)
+					self.threadId = threadId
+					self.name = name
+					self.q = q
+					
+				# 把要执行的代码写在run()函数里，线程创建后会直接运行run()函数
+				def run(self):
+					print 'Starting ' + self.name
+					process_data(self.name, self.q)
+					print 'Exiting ' + self.name
+					
+			def process_data(threadName, q):
+				while not exitFlag:
+					queueLock.acquire()
+					if not workQueue.empty():
+						data = q.get()
+						queueLock.release()
+						print '%s processing %s' %(threadName, data)
+					else:
+						queueLock.release()
+					time.sleep(1)
+					
+			threadList = ['Thread-1', 'Thread-2', 'Thread-3']
+			nameList = ['One', 'Two', 'Three', 'Four', 'Five']
+			queueLock = threading.Lock()
+			workQueue = Queue.Queue(10)
+			threads = []
+			threadID = 1
+					
+			# 创建线程
+			for tName in threadList:
+				thread = myThread(threadID, tName, workQueue)
+				thread.start()
+				threads.append(thread)
+				threadID += 1
+				
+			# 填充队列
+			queueLock.acquire()
+			for word in nameList:
+				workQueue.put(word)
+			queueLock.release()
+
+			# 等待队列清空
+			while not workQueue.empty():
+				pass
+
+			# 通知线程是时候退出
+			exitFlag = 1
+
+			# 等待所有线程完成
+			for t in threads:
+				t.join()
+
+			print 'Exiting Main Thread'
+			
+# python XML解析
+	# XML 可扩展标记语言，eXtensible Markup Language
+	# XML 一套定义语义标记的规则，这些标记将文档分成许多部件并对这些部件加以标识。
+	# XML 元标记语言，定义了用于定义其他与特定领域有关的、语义的、结构化的标记语言的句法。
+	# 常见的XML编程接口有DOM和SAX，两种处理XML的方式不同，适用场合也不同。
+	# python有三种方法解析XML：SAX,DOM和ElementTree。
+		# SAX simple API for XML，python标准库包含SAX解析器，事件驱动模型，通过在解析XML过程中触发一个个事件并调用用户定义的回调函数来处理XML文件。
+		# DOM document object model，将XML在内存中解析成一个树，通过对树的操作来操作XML。
+		# ElementTree 类似一个轻量级的DOM，有方便友好的API，代码可用性好，速度快，消耗内存少。
+		# DOM和SAX比较
+			# DOM需要将XML数据映射到内存中的树，一是比较慢，二是比较消耗内存。
+			# SAX是流式读取XML文件，比较快，占用内存少，但是需要用户自己实现回调函数（handler）
+	# xml实例文件movies.xml
+		<collection shelf = "New Arrivals">
+		<movie title = "Enemy Behind">
+			<type>War, Thriller</type>
+			<format>DVD</format>
+			<year>2003</year>
+			<rating>PG</rating>
+			<stars>10</stars>
+			<description>Talk about a US-Japan war</description>
+		</movie>
+		<movie title = "Transformers">
+			<type>Anime, Science Fiction</type>
+			<format>DVD</format>
+			<year>1989</year>
+			<rating>R</rating>
+			<stars>8</stars>
+			<description>A Scientific fiction</description>
+		</movie>
+		<movie title = "Trigun">
+			<type>Anime, Action</type>
+			<format>DVD</format>
+			<episodes>4</episodes>
+			<rating>PG</rating>
+			<stars>10</stars>
+			<description>Vash the Stampede!</description>
+		</movie>
+		<movie title = "Ishtar">
+			<type>Comed</type>
+			<format>VHS</format>
+			<rating>PG</rating>
+			<stars>2</stars>
+			<description>Vieewable boredom</description>
+		</movie>
+		</collection>
+	# 使用SAX解析xml
+		# SAX是一种基于事件驱动的API
+		# 利用SAX解析XML文档需要用到两部分：解析器和事件处理器
+			# 解析器负责读取XML文档，并向事件处理器发送事件
+			# 事件处理器负责对事件作出响应，对传递的XML数据进行处理
+		# python中引入xml.sax模块的parse()函数，还有xml.sax.handler中的ContentHandler
+			# ContentHandler类方法介绍
+				# characters(content) 
+					# 从行开始，遇到标签之前，存在字符，content的值为这些字符串
+					# 从一个标签，遇到下一个标签之前，存在字符，content的值为这些字符串
+					# 从一个标签，遇到行结束符之前，存在字符，content的值为这些字符串
+					# 标签可以是开始标签，也可以是结束标签
+				# startDocument() 文档启动时调用
+				# endDocument() 解析器到达文档结尾时调用
+				# startElement(name, attrs) 遇到XML开始标签时调用，name是标签名，attrs是标签的属性值字典
+				# endElement(name) 遇到XML结束标签时调用
+			# make_parser(parser_list) 创建一个新的解析器对象并返回
+			# parse(xmlfile, contenthandler, errorhandler)
+				# xmlfile xml文件名
+				# contenthandler 必须是一个ContentHandler对象
+				# errorhandler 如果指定该参数，必须是一个SAXErrorHandler对象
+			# parseString(xmlstring, contenthandler, errorhandler)
+				# xmlstring xml字符串
+				# contenthandler 必须是一个ContentHandler对象
+				# errorhandler 如果指定该参数，必须是一个SAXErrorHandler对象
+		
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入xml模块
+		import xml.sax
+
+		class MovieHandler(xml.sax.ContentHandler):
+			def __init__(self):
+				self.CurrentData = ''
+				self.type = ''
+				self.format = ''
+				self.year = ''
+				self.rating = ''
+				self.stars = ''
+				self.description = ''
+				
+			# 元素开始事件处理
+			def startElement(self, tag, attributes):
+				self.CurrentData = tag
+				if tag == 'movie':
+					print '*******Movie********'
+					title = attributes['title']
+					print 'Title: ', title
+						
+			# 元素结束事件处理
+			def endElement(self, tag):
+				if self.CurrentData == 'type':
+					print 'Type: ', self.type
+				elif self.CurrentData == 'format':
+					print 'Format: ', self.format
+				elif self.CurrentData == 'year':
+					print 'Year: ', self.year
+				elif self.CurrentData == 'rating':
+					print 'Rating: ', self.rating
+				elif self.CurrentData == 'stars':
+					print 'Stars: ', self.stars
+				elif self.CurrentData == 'description':
+					print 'Description: ', self.description
+				self.CurrentData = ''
+					
+			# 内容事件处理
+			def characters(self, content):
+				if self.CurrentData == 'type':
+					self.type = content
+				elif self.CurrentData == 'format':
+					self.format = content
+				elif self.CurrentData == 'year':
+					self.year = content
+				elif self.CurrentData == 'rating':
+					self.rating = content
+				elif self.CurrentData == 'stars':
+					self.stars = content
+				elif self.CurrentData == 'description':
+					self.description = content
+						
+		if (__name__ == '__main__'):
+			# 创建一个XMLReader
+			parser = xml.sax.make_parser()
+			# turn off namesapce
+			parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+			
+			# 重写ContentHandler
+			Handler = MovieHandler()
+			parser.setContentHandler(Handler)
+			
+			parser.parse('movies.xml')
+			
+	# 使用DOM解析xml
+		# 文件对象模型，DOM，是W3C组织推荐的处理可扩展标记语言的标准编程接口。
+		# 一个DOM的解析器在解析一个xml文档时，一次性读取整个文档，把文档中所有元素保存在内存中的树结构里，之后利用DOM提供的不同函数读取或修改文档的内容和结构。
+		# python用xml.dom.minidom来解析xml文件
+		
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入解析模块
+		import xml.dom.minidom
+		from xml.dom.minidom import parse
+
+		# 使用minidom解析器打开xml文档
+		DOMTree = xml.dom.minidom.parse('movies.xml')
+		collection = DOMTree.documentElement
+		if collection.hasAttribute('shelf'):
+			print 'Root element: %s' % collection.getAttribute('shelf')
+			
+		# 在集合中获取所有电影
+		movies = collection.getElementsByTagName('movie')
+
+		# 打印每部电影的详细信息
+		for movie in movies:
+			print '*******Movie*********'
+			if movie.hasAttribute('title'):
+				print 'Title: %s' % movie.getAttribute('title')
+			
+			type = movie.getElementsByTagName('type')[0]
+			print 'Type: %s' % type.childNodes[0].data
+			format = movie.getElementsByTagName('format')[0]
+			print 'Format: %s' % format.childNodes[0].data
+			rating = movie.getElementsByTagName('rating')[0]
+			print 'Rating: %s' % rating.childNodes[0].data
+			description = movie.getElementsByTagName('description')[0]
+			print 'Description: %s' % description.childNodes[0].data
+
+# python GUI编程（Tkinter）
+	# 几个常用python GUI库
+		# Tkinter python的标准Tk GUI工具包的接口
+		# wxPython 开源软件
+		# Jython 可以和Java无缝集成，除了一些标准模块，Jython使用Java的模块，用户界面使用swing，AWT或者SWT。Jython可以被动态或静态地编译成Java字节码。
+	# Tkinter编程
+		# Tkinter是python的标准GUI库。
+		# 创建GUI程序
+			# 1，导入Tkinter模块
+			# 2，创建控件
+			# 3，指定这个控件的master，即这个控件属于哪一个
+			# 4，告诉GM(geometry manager)有一个控件产生了
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入Tkinter模块
+		import Tkinter
+		top = Tkinter.Tk()
+		# 进入消息循环
+		top.mainloop()
+		# ///////////////////分割线////////////////////////
+		#!python
+		# -*-coding:utf-8 -*-
+
+		# 导入Tkinter模块
+		from Tkinter import *
+
+		# 创建窗口对象
+		root = Tk()
+
+		# 创建两个列表
+		li = ['C', 'python', 'php', 'html', 'sql', 'java']
+		movie = ['CSS', 'jQuery', 'Bootstrap']
+
+		# 创建两个列表组件
+		listb = Listbox(root)
+		listb2 = Listbox(root)
+
+		# 第一个列表组件插入数据
+		for item in li:
+			listb.insert(0, item)
+
+		# 第二个列表组件插入数据 
+		for item in movie:
+			listb2.insert(0, item)
+			
+		# 将组件放置到主窗口中
+		listb.pack()
+		listb2.pack()
+
+		# 进入消息循环
+		root.mainloop()
+	
+	# Tkinter组件
+		# Button 按钮控件
+		# Canvas 画布控件，显示图形元素，如线条或文本
+		# Checkbutton 多选框控件，提供多项选择框
+		# Entry 输入控件
+		# Frame 框架控件，在屏幕上显示一个矩形区域，多用来作为容器
+		# Label 标签控件，可显示文本和位图
+		# Listbox 列表框控件
+		# Menubutton 菜单按钮控件，显示菜单项
+		# Menu 菜单控件，显示菜单栏，下拉菜单和弹出菜单
+		# Message 消息控件，用来显示多行文本
+		# Radiobutton 单选按钮控件
+		# Scale 范围控件，显示一个数值刻度
+		# Scrollbar 滚动条控件，当内容超过可视化区域时使用
+		# Text 文本控件，显示多行文本
+		# Toplevel 容器控件，提供一个单独的对话框
+		# Spinbox 输入控件，与Entry类似，但可以指定输入范围值
+		# PanedWindow 窗口布局管理的查件，可以包含一个或多个子控件
+		# LabelFrame 简单的容器控件，常用于复杂的窗口布局
+		# tkMessageBox 用于显示应用程序的消息框
+	# 标准属性
+		# Dimension 控件大小
+		# Color 控件颜色
+		# Font 控件字体
+		# Anchor 锚点
+		# Relief 控件样式
+		# Bitmap 位图
+		# Cursor 光标
+	# 几何管理
+		# pack() 包装
+		# grid() 网格
+		# place() 位置
+		
+# python 2.x 与python 3.x版本区别
+	# 1，print函数
+		# print语句没有了，用print()函数取代。python 2.6/2.7部分支持print()函数
+			# python 2.6/2.7中以下三种形式等价
+			print 'fish'
+			print ('fish')
+			print('fish')
+	# 2，Unicode
+		# python 2有ASCII str()类型，unicode()是单独的，不是byte类型
+			str = '我爱北京天安门'
+			str		#输出'\xe6\x88\x91\xe7\x88\xb1\xe5\x8c\x97\xe4\xba\xac\xe5\xa4\xa9\xe5\xae\x89\xe9\x97\xa8'
+			str = u'我爱北京天安门'
+			str		#输出u'\u6211\u7231\u5317\u4eac\u5929\u5b89\u95e8'
+		# python 3有了Unicode(utf-8)字符串，以及一个字节类byte和bytearrays
+			中国 = 'china'
+			print(中国)		# 输出结果china
+			
+			str = '我爱北京天安门'
+			str		#输出 '我爱北京天安门'
+	# 3，除法运算
+		# /
+			# python 2.x
+			1 / 2			# 0
+			1.0 / 2.0		# 0.5
+			# python 3.x
+			1 / 2			# 0.5
+		# //(floor除法)
+			# python 2.x
+			-1 // 2			# -1
+			# python 3.x
+			-1 // 2			# -1
+			# 注意是floor()而不是舍弃小数部分，舍弃小数部分用math中的trunc()函数
+				import math
+				math.trunc(1 / 2)		# 0
+				math.trunc(-1 / 2)		# 0
+	# 4，异常
+		# python 3 中as作为关键词
+		# 捕获异常的语法由except exc, var改为except exc as var
+		# 使用except (exc1, exc2) as var可以同时捕获多种类型的异常
+	# 5，xrange
+		# python 3中range()像xrange()那样实现，python 3中没有xrange()
+	# 6，八进制字面量表示
+		# 八进制必须写成0o777，原来的形式0777不能用了，二进制必须写成0b111.
+		# 新增bin()函数用于将一个整数转换为二进制字符串。
+		# python 2.x
+			0o1000		# 512
+			01000		# 512
+		# python 3.x
+			0o1000		# 512
+			01000		# 错误
+	# 7，不等运算符
+		# python 2.x中不等有两种写法，!=和<>
+		# python 3.x中去掉了<>，只有!=一种写法。
+	# 8，去掉了repr表达式``
+		# python 2.x中反引号``相当于repr函数的作用
+		# python 3.x中去掉了``这种写法，只允许使用repr函数。
+	# 9，模块改名
+		# _winreg		===>		winreg
+		# ConfigParser	===>		configparser
+		# copy_reg		===>		copyreg
+		# Queue			===>		queue
+		# SocketServer	===>		socketserver
+		# repr			===>		reprlib
+		# StringIO模块被合并到新的io模块里。
+		# new/md5/gopherlib等模块被删除
+		# httplib/BaseHTTPServer/CGIHTTPServer/SimpleHTTPServer/Cookie/cookielib被合并到http包
+		# 取消了exec语句，只剩下exec()函数。
+	# 10，数据类型
+		# python 3.x去除了long类型，现在只有一种整型int，它的行为和2.x版本的long类似。
+		# 新增了byte类型，对应于2.x版本的八位串
+			# 定义一个bytes字面量方法如下：
+			b = b'china'
+			type(b)		# <type 'bytes'>
+		# str对象和bytes对象可以相互转化。
+			# .encode()(str ---> bytes)
+			# .decode()(bytes ---> str)
+			s = b.decode()
+			s		# 'china'
+			b1 = s.encode()
+			b1		# b'china'
+		# dict的keys()/items()/values()方法返回迭代器。之前的iterkeys()等函数被废弃，同时去掉的还有dict.has_key()
+		
+# python IDE
+	# PyCharm
+	# Sublime Text
+		# 部分插件扩展功能
+			# CodeIntel 自动补全+成员/方法提示
+			# SublimeREPL 用于运行和调试一些需要交互的程序
+			# Bracket Highlighter 括号匹配及高亮
+			# SublimeLinter 代码pep8格式检查
+	# Eclipse + Pydev
+
+# python JSON
+	# JSON，JavaScript Object Notation，是一种轻量级的数据交换格式，易于人阅读和编写。
+	# python原始类型和json类型转化对照
+		# dict				<===>		object
+		# list, tuple		<===>		array
+		# str, unicode		<===>		string
+		# int, long, float	<===>		number
+		# True 				<===>		true
+		# False				<===>		false
+		# None				<===>		null
+	# JSON库，JSON函数
+		# json.dumps 将python对象编码成JSON字符串
+			# json.dumps(obj, skipkeys = False, ensure_ascii = True, check_circular = True, allow_nan = True, cls = None, indent = None, separators = None, encoding = 'utf-8', default = None, sort_keys = False, **kw)
+			#!python
+			# -*-coding:utf-8 -*-
+
+			import json
+
+			data = [{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}]
+			json = json.dumps(data)
+			print json
+			# 输出结果：[{"a": 1, "c": 3, "b": 2, "e": 5, "d": 4}]
+			
+			print json.dumps({'a': 'Runable', 'b': 7}, sort_keys = True, indent = 10, separators = (',', ':'))
+			# 输出结果：
+			{
+			          "a":"Runable",
+                      "b":7
+			}
+		# json.loads 将已编码的JSON字符串解码为python对象
+			# json.loads(s, encoding, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)
+			jsonData = '{"a": 1, "b": 2, "c": 3, "d": 4, "e": 5}'
+			text = json.loads(jsonData)
+			print text
+			# 输出结果：{u'a': 1, u'c': 3, u'b': 2, u'e': 5, u'd': 4}
+	# 第三方库Demjson
+		# Demjson是python第三方模块库，可用于编码和解码JSON数据，包含了JSONLint的格式化及校验功能。
+		# linux环境配置
+			# tar -xvzf demjson-2.2.3.tar.gz
+			# cd demjson-2.2.3
+			# python setup.py install
+		# JSON函数
+			# demjson.encode(self, obj, nest_level = 0) 将python对象编码成JSON字符串
+				import demjson
+				
+				data = [{'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5}]
+				json_str = demjson.encode(data)
+				print json_str
+				# 输出结果：[{"a":1,"b":2,"c":3,"d":4,"e":5}]
+			# demjson.decode(self, txt) 解码JSON，返回python字段数据类型
+				jsonData = '{"a": 1, "b": 2, "c": 3, "d": 4, "e": 5}'
+				text = demjson.decode(jsonData)
+				print text
+				# 输出结果：{u'a': 1, u'c': 3, u'b': 2, u'e': 5, u'd': 4}
+			
+# python实例练习
+	# 1，四个数字1,2,3,4能组成多少个各位互不相同又不重复的三位数？
+	# 分析：可填在百位、十位和个位的数字都是1,2,3,4，组成所有的排列后去掉不满足条件的。
+	for i in range(1, 5):
+		for j in range(1, 5):
+			for k in range(1, 5):
+				if (i != j) and (i != k) and (j != k):
+					print i, j, k
